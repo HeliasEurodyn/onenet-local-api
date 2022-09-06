@@ -1,9 +1,9 @@
 package com.ed.onenet.service;
 
-import com.ed.onenet.dto.FileResponse;
-import com.ed.onenet.dto.FormResponse;
 import com.ed.onenet.controller.rest_template.OneNetRestTemplate;
 import com.ed.onenet.controller.rest_template.SofiaRestTemplate;
+import com.ed.onenet.dto.FileResponse;
+import com.ed.onenet.dto.FormResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Service;
 
@@ -35,14 +35,8 @@ public class EntityService {
         this.sofiaRestTemplate = sofiaRestTemplate;
     }
 
-//    public Map<String, Object> getObject(String componentName,
-//                                         String id) {
-//        Map<String, Object> jsonLdParameters = this.sourceRegistrationParameters(componentName, id);
-//        return null;
-//    }
-
     public FormResponse postObject(String formId, Map<String, Map<String, Object>> parameters,
-                                          Map<String, String> headers) {
+                                   Map<String, String> headers) {
 
         Map<String, Map<String, Object>> subEntity =
                 (Map<String, Map<String, Object>>) parameters.get("data_send").get("sub-entities");
@@ -54,24 +48,12 @@ public class EntityService {
         parameters.get("data_send").put("id", id);
         parameters.get("data_send").put("message", message);
 
-        // UserDTO userDTO = userService.getCurrentUser(headers.get("authorization"));
+        List<Map<String, Object>> jsonLdParametersList = this.parametersToJsonLdList(parameters);
 
-        List<Map<String, Object>> jsonLdParametersList =  this.parametersToJsonLdList(parameters);
-
-        for(Map<String, Object> jsonLdParameters :  jsonLdParametersList){
-
+        for (Map<String, Object> jsonLdParameters : jsonLdParametersList) {
             Map<String, String> refId = (Map<String, String>) jsonLdParameters.get("refId");
-            id = refId.get("value");
-
-           // String type = (String) jsonLdParameters.get("type");
-
-           // Boolean exists = this.oneNetRestTemplate.checkExistance(providerFiwareIp, type, id);
-           // if (exists) {
-           //     this.oneNetRestTemplate.update(jsonLdParameters, headers, type, id, providerFiwareIp);
-           // } else {
-                this.oneNetRestTemplate.post(jsonLdParameters, headers, providerFiwareIp);
-           // }
-
+            //id = refId.get("value");
+            this.oneNetRestTemplate.post(jsonLdParameters, headers, providerFiwareIp);
         }
 
         return new FormResponse(id);
@@ -79,10 +61,10 @@ public class EntityService {
 
 
     public FileResponse getObjectData(String id,
-                                String encodedEccUrl,
-                                String encodedConsumerFiwareUrl,
+                                      String encodedEccUrl,
+                                      String encodedConsumerFiwareUrl,
                                       String encodedConsumerDataAppUrl,
-                                Map<String, String> headers) {
+                                      Map<String, String> headers) {
 
         byte[] decodedBytes = Base64.getDecoder().decode(encodedEccUrl);
         String eccUrl = new String(decodedBytes);
@@ -98,24 +80,24 @@ public class EntityService {
 
         Map<String, Object> reqJsonParameters = new HashMap<>();
         reqJsonParameters.put("entityId", "urn:ngsi-ld:dataentity:" + id);
-        reqJsonParameters.put("eccUrl",eccUrl);
-        reqJsonParameters.put("brokerUrl",consumerFiwareUrl);
-            this.oneNetRestTemplate.dataentityRequesFromProvider(reqJsonParameters, consumerDataAppUrl);
+        reqJsonParameters.put("eccUrl", eccUrl);
+        reqJsonParameters.put("brokerUrl", consumerFiwareUrl);
+        this.oneNetRestTemplate.dataentityRequesFromProvider(reqJsonParameters, consumerDataAppUrl);
 
-        Map<String, Object> jsonLdParameters = this.oneNetRestTemplate.retrieveData("dataentity", id, consumerDataAppUrl );
+        Map<String, Object> jsonLdParameters = this.oneNetRestTemplate.retrieveData("dataentity", id, consumerDataAppUrl);
 
         Map<String, Object> sizeRef = (Map<String, Object>) jsonLdParameters.get("partsSize");
         Integer size = (Integer) sizeRef.get("value");
 
-        for(int i = 0; i < size; i++){
+        for (int i = 0; i < size; i++) {
 
             reqJsonParameters = new HashMap<>();
-            reqJsonParameters.put("entityId", "urn:ngsi-ld:datapart:" + id + "-"+ i);
-            reqJsonParameters.put("eccUrl",eccUrl);
-            reqJsonParameters.put("brokerUrl",consumerFiwareUrl);
+            reqJsonParameters.put("entityId", "urn:ngsi-ld:datapart:" + id + "-" + i);
+            reqJsonParameters.put("eccUrl", eccUrl);
+            reqJsonParameters.put("brokerUrl", consumerFiwareUrl);
             this.oneNetRestTemplate.dataentityRequesFromProvider(reqJsonParameters, consumerDataAppUrl);
 
-            Map<String, Object> jsonLdPartParameters = this.oneNetRestTemplate.retrieveData("datapart", id + "-"+ i, consumerDataAppUrl);
+            Map<String, Object> jsonLdPartParameters = this.oneNetRestTemplate.retrieveData("datapart", id + "-" + i, consumerDataAppUrl);
             Map<String, String> partRef = (Map<String, String>) jsonLdPartParameters.get("part");
             String part = partRef.get("value");
             fileParts.add(part);
@@ -125,8 +107,8 @@ public class EntityService {
     }
 
     public FileResponse getLocalObjectData(String id,
-                                     String encodedFiwareUrl,
-                                     Map<String, String> headers) {
+                                           String encodedFiwareUrl,
+                                           Map<String, String> headers) {
 
         byte[] decodedBytes = Base64.getDecoder().decode(encodedFiwareUrl);
         String fiwareUrl = new String(decodedBytes);
@@ -135,22 +117,22 @@ public class EntityService {
 
         Boolean exists = this.oneNetRestTemplate.checkExistance(fiwareUrl, "dataentity", id);
         if (!exists) {
-           return new FileResponse("", true);
+            return new FileResponse("", true);
         }
 
-        Map<String, Object> jsonLdParameters = this.oneNetRestTemplate.retrieveData("dataentity", id, fiwareUrl );
+        Map<String, Object> jsonLdParameters = this.oneNetRestTemplate.retrieveData("dataentity", id, fiwareUrl);
 
         Map<String, Object> sizeRef = (Map<String, Object>) jsonLdParameters.get("partsSize");
         int size = (int) sizeRef.get("value");
 
-        for(int i = 0; i < size; i++){
+        for (int i = 0; i < size; i++) {
 
-            exists = this.oneNetRestTemplate.checkExistance(fiwareUrl, "datapart", id + "-"+ i);
+            exists = this.oneNetRestTemplate.checkExistance(fiwareUrl, "datapart", id + "-" + i);
             if (!exists) {
-              return new FileResponse("", true);
+                return new FileResponse("", true);
             }
 
-            Map<String, Object> jsonLdPartParameters = this.oneNetRestTemplate.retrieveData("datapart", id + "-"+ i, fiwareUrl);
+            Map<String, Object> jsonLdPartParameters = this.oneNetRestTemplate.retrieveData("datapart", id + "-" + i, fiwareUrl);
             Map<String, String> partRef = (Map<String, String>) jsonLdPartParameters.get("part");
             String part = partRef.get("value");
             fileParts.add(part);
@@ -184,7 +166,7 @@ public class EntityService {
 
         String filedata = parameterFields.get("message").toString();
 
-        int length = filedata.contains("base64,")  ? filedata.split(",")[1].length() : filedata.length();
+        int length = filedata.contains("base64,") ? filedata.split(",")[1].length() : filedata.length();
         double fileSizeInByte = Math.ceil((double) length / 4) * 3;
         System.out.println(fileSizeInByte);
 
@@ -201,9 +183,9 @@ public class EntityService {
         jsonLdParameters.put("refId", jsonLdField);
 
         int index = 0;
-        for(String filedataPart : filedataParts){
-            Map<String, Object> fileDataPartJsonLd = this.fileDataPartToJsonLd( filedataPart,
-                    parameterFields.get("id") + "-" + index );
+        for (String filedataPart : filedataParts) {
+            Map<String, Object> fileDataPartJsonLd = this.fileDataPartToJsonLd(filedataPart,
+                    parameterFields.get("id") + "-" + index);
 
             jsonLdParametersList.add(fileDataPartJsonLd);
             index++;
@@ -219,7 +201,7 @@ public class EntityService {
         jsonLdParameters.put("type", "ContextSourceRegistration");
         jsonLdParameters.put("@context",
                 Arrays.asList("https://fiware.github.io/data-models/context.jsonld",
-                "https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context-v1.3.jsonld"));
+                        "https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context-v1.3.jsonld"));
         jsonLdParameters.put("endpoint", onenetProviderAppDataPublicIp);
 
         Map<String, Object> jsonLdEntity = new HashMap<>();
@@ -270,11 +252,11 @@ public class EntityService {
         String[] filedataParts = filedata.split("(?<=\\G.{100000})");
 
         int index = 0;
-        for(String filedataPart : filedataParts){
+        for (String filedataPart : filedataParts) {
             Map<String, Object> jsonLdField = new HashMap<>();
             jsonLdField.put("type", "Property");
             jsonLdField.put("value", filedataPart);
-            jsonLdBody.put("filedata"+index, jsonLdField);
+            jsonLdBody.put("filedata" + index, jsonLdField);
             index++;
         }
 

@@ -2,13 +2,11 @@ package com.ed.onenet.controller.rest_template;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.net.URI;
 import java.util.Map;
@@ -50,15 +48,14 @@ public class OneNetRestTemplate {
         try {
             ResponseEntity<Object> response =
             restTemplate.exchange(
-                    URI.create(endpoint +"/ngsi-ld/v1/entities/"),
+                    URI.create(endpoint +"/createentity/"),
                     HttpMethod.POST,
                     httpEntity,
                     new ParameterizedTypeReference<Object>() {
                     }
             );
-        }catch (Exception ex){
-            String s = "";
-            s = ex.getMessage();
+        } catch (Exception ex) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error Accessing DataApp");
         }
 
         return jsonLdParameters;
