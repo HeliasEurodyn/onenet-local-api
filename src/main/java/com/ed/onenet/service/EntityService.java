@@ -1,7 +1,7 @@
 package com.ed.onenet.service;
 
-import com.ed.onenet.controller.rest_template.OneNetRestTemplate;
-import com.ed.onenet.controller.rest_template.SofiaRestTemplate;
+import com.ed.onenet.rest_template.OneNetRestTemplate;
+import com.ed.onenet.rest_template.SofiaRestTemplate;
 import com.ed.onenet.dto.FileResponse;
 import com.ed.onenet.dto.FormResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;

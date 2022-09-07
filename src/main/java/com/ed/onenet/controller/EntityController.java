@@ -28,14 +28,14 @@ public class EntityController {
         return this.entityService.postObject(formId, parameters, headers);
     }
 
-    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE )
+    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public FileResponse getObjectData(@RequestParam("id") String id,
-                                @RequestParam("provider_ecc") String encodedEccUrl,
-                                @RequestParam("consumer_fiware") String encodedConsumerFiwareUrl,
-                                @RequestParam("consumer_data_app") String encodedConsumerDataAppUrl,
+                                      @RequestParam("provider_ecc") String encodedEccUrl,
+                                      @RequestParam("consumer_fiware") String encodedConsumerFiwareUrl,
+                                      @RequestParam("consumer_data_app") String encodedConsumerDataAppUrl,
                                       @RequestHeader Map<String, String> headers) {
 
-        return this.entityService.getObjectData(id, encodedEccUrl, encodedConsumerFiwareUrl,encodedConsumerDataAppUrl, headers);
+        return this.entityService.getObjectData(id, encodedEccUrl, encodedConsumerFiwareUrl, encodedConsumerDataAppUrl, headers);
     }
 
     @GetMapping(path = "/local")
@@ -43,7 +43,7 @@ public class EntityController {
                                      @RequestParam("fiware_url") String encodedFiwareUrl,
                                      @RequestHeader Map<String, String> headers) {
 
-        FileResponse fileResponse =  this.entityService.getLocalObjectData(id, encodedFiwareUrl, headers);
+        FileResponse fileResponse = this.entityService.getLocalObjectData(id, encodedFiwareUrl, headers);
         return fileResponse;
     }
 }

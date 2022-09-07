@@ -1,4 +1,4 @@
-package com.ed.onenet.controller.rest_template;
+package com.ed.onenet.rest_template;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
