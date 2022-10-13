@@ -2,6 +2,8 @@ package com.ed.onenet.controller.offered_services;
 
 import com.ed.onenet.dto.list_results.ListResultsDataDTO;
 import com.ed.onenet.service.offered_services.OfferedServicesService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
@@ -21,11 +23,13 @@ public class OfferedServicesController {
         this.offeredServicesService = offeredServicesService;
     }
 
+    @Operation(security = @SecurityRequirement(name = "bearerAuth"))
     @GetMapping("list")
     public List<Map<String, Object>> getList(@RequestHeader Map<String, String> headers) {
         return offeredServicesService.getList(headers);
     }
 
+    @Operation(security = @SecurityRequirement(name = "bearerAuth"))
     @GetMapping("page/{page}")
     public ListResultsDataDTO getPage(
             @RequestHeader Map<String, String> headers,
