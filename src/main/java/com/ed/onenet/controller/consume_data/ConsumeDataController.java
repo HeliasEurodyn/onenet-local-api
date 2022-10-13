@@ -16,7 +16,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/consume-data")
 @Slf4j
-@Tag(name = "Asset Types", description = "Endpoints collection for Asset Types List.")
+@Tag(name = "Consumed Data", description = "These endpoints provide the consumed data (All of them or by {page}). Also you can retrieve a specific entry by {id}")
 public class ConsumeDataController {
 
     private final ConsumeDataService consumeDataService;

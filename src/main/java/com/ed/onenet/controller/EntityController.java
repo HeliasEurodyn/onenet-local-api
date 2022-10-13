@@ -3,6 +3,7 @@ package com.ed.onenet.controller;
 import com.ed.onenet.dto.FileResponse;
 import com.ed.onenet.dto.FormResponse;
 import com.ed.onenet.service.EntityService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
@@ -13,6 +14,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/entity")
 @Slf4j
+@Tag(name = "Entity", description = "These endpoints are responsible for data exchanging functionality")
 public class EntityController {
     private final EntityService entityService;
 

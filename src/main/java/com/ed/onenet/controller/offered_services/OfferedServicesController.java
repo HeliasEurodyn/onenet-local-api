@@ -2,6 +2,7 @@ package com.ed.onenet.controller.offered_services;
 
 import com.ed.onenet.dto.list_results.ListResultsDataDTO;
 import com.ed.onenet.service.offered_services.OfferedServicesService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
@@ -11,6 +12,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/offered-services")
 @Slf4j
+@Tag(name = "Offered Services", description = "These endpoints fetch your offered services (All of them or by {page}).")
 public class OfferedServicesController {
 
     private final OfferedServicesService offeredServicesService;
