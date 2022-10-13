@@ -4,6 +4,7 @@ import com.ed.onenet.rest_template.OneNetRestTemplate;
 import com.ed.onenet.rest_template.SofiaRestTemplate;
 import com.ed.onenet.dto.FileResponse;
 import com.ed.onenet.dto.FormResponse;
+import com.ed.onenet.service.user.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Service;
 
@@ -12,16 +13,6 @@ import java.util.*;
 
 @Service
 public class EntityService {
-
-//    @Value("${orion.consumer.fiware.ip}")
-//    private String onenetConsumerfiwareIp;
-//
-//    @Value("${orion.provider.fiware.ip}")
-//    private String onenetProviderFiwareIp;
-//
-//    @Value("${orion.provider.appData.ip}")
-//    private String onenetProviderAppDataIp;
-
 
     private final UserService userService;
     private final OneNetRestTemplate oneNetRestTemplate;
@@ -42,25 +33,41 @@ public class EntityService {
                 (Map<String, Map<String, Object>>) parameters.get("data_send").get("sub-entities");
         String providerFiwareIp = (String) subEntity.get("provider").get("provider_fiware_url");
 
+        parameters = this.postObjectToCentralRegistry(formId, parameters, headers);
+
+        this.postObjectToOnenet(parameters, providerFiwareIp, headers);
+
+        String id = (String) parameters.get("data_send").get("id");
+        return new FormResponse(id);
+    }
+
+
+    public Map<String, Map<String, Object>> postObjectToCentralRegistry(String formId, Map<String, Map<String, Object>> parameters,
+                                   Map<String, String> headers) {
+
         String message = parameters.get("data_send").get("message").toString();
         parameters.get("data_send").put("message", "");
         String id = this.sofiaRestTemplate.post(parameters, formId, headers);
         parameters.get("data_send").put("id", id);
         parameters.get("data_send").put("message", message);
 
+        return parameters;
+    }
+
+    public void postObjectToOnenet(Map<String, Map<String, Object>> parameters,
+                                           String providerFiwareIp,
+                                   Map<String, String> headers) {
+
         List<Map<String, Object>> jsonLdParametersList = this.parametersToJsonLdList(parameters);
 
         for (Map<String, Object> jsonLdParameters : jsonLdParametersList) {
-            Map<String, String> refId = (Map<String, String>) jsonLdParameters.get("refId");
-            //id = refId.get("value");
             this.oneNetRestTemplate.post(jsonLdParameters, headers, providerFiwareIp);
         }
 
-        return new FormResponse(id);
     }
 
 
-    public FileResponse getObjectData(String id,
+    public FileResponse decodeUrlsAndGetObjectData(String id,
                                       String encodedEccUrl,
                                       String encodedConsumerFiwareUrl,
                                       String encodedConsumerDataAppUrl,
@@ -75,8 +82,16 @@ public class EntityService {
         decodedBytes = Base64.getDecoder().decode(encodedConsumerDataAppUrl);
         String consumerDataAppUrl = new String(decodedBytes);
 
-        List<String> fileParts = new ArrayList<>();
+       return this.getObjectData(id, eccUrl, consumerFiwareUrl, consumerDataAppUrl, headers);
+    }
 
+    public FileResponse getObjectData(String id,
+                                      String eccUrl,
+                                      String consumerFiwareUrl,
+                                      String consumerDataAppUrl,
+                                      Map<String, String> headers) {
+
+        List<String> fileParts = new ArrayList<>();
 
         Map<String, Object> reqJsonParameters = new HashMap<>();
         reqJsonParameters.put("entityId", "urn:ngsi-ld:dataentity:" + id);
@@ -168,7 +183,6 @@ public class EntityService {
 
         int length = filedata.contains("base64,") ? filedata.split(",")[1].length() : filedata.length();
         double fileSizeInByte = Math.ceil((double) length / 4) * 3;
-        System.out.println(fileSizeInByte);
 
         String[] filedataParts = filedata.split("(?<=\\G.{10000})");
 

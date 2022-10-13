@@ -1,4 +1,4 @@
-package com.ed.onenet.dto;
+package com.ed.onenet.dto.user;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.*;
@@ -20,13 +20,5 @@ public class UserDTO {
     private String username;
 
     private String email;
-
-    private String companyId;
-
-    private String companyName;
-
-    private String companyAddress;
-
-    private String phoneNumber;
 
 }
