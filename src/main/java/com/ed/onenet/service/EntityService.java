@@ -4,6 +4,7 @@ import com.ed.onenet.rest_template.OneNetRestTemplate;
 import com.ed.onenet.rest_template.SofiaRestTemplate;
 import com.ed.onenet.dto.FileResponse;
 import com.ed.onenet.dto.FormResponse;
+import com.ed.onenet.rest_template.custom_query.CustomQueryRestTemplate;
 import com.ed.onenet.service.user.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Service;
@@ -17,27 +18,37 @@ public class EntityService {
     private final UserService userService;
     private final OneNetRestTemplate oneNetRestTemplate;
     private final SofiaRestTemplate sofiaRestTemplate;
+    private final CustomQueryRestTemplate customQueryRestTemplate;
 
     public EntityService(UserService userService,
                          OneNetRestTemplate oneNetRestTemplate,
-                         SofiaRestTemplate sofiaRestTemplate) {
+                         SofiaRestTemplate sofiaRestTemplate,
+                         CustomQueryRestTemplate customQueryRestTemplate) {
         this.oneNetRestTemplate = oneNetRestTemplate;
         this.userService = userService;
         this.sofiaRestTemplate = sofiaRestTemplate;
+        this.customQueryRestTemplate = customQueryRestTemplate;
     }
 
     public FormResponse postObject(String formId, Map<String, Map<String, Object>> parameters,
                                    Map<String, String> headers) {
 
+        /* Save Data Offering to Central Registry */
+        parameters.get("data_send").put("status","pending");
+        parameters = this.postObjectToCentralRegistry(formId, parameters, headers);
+        String id = (String) parameters.get("data_send").get("id");
+
+        /* Save File on Local Premises */
         Map<String, Map<String, Object>> subEntity =
                 (Map<String, Map<String, Object>>) parameters.get("data_send").get("sub-entities");
         String providerFiwareIp = (String) subEntity.get("provider").get("provider_fiware_url");
-
-        parameters = this.postObjectToCentralRegistry(formId, parameters, headers);
-
         this.postObjectToOnenet(parameters, providerFiwareIp, headers);
 
-        String id = (String) parameters.get("data_send").get("id");
+        /* Activate Data Offering to Central Registry */
+        Map<String, String> activationParameters = new HashMap<>();
+        activationParameters.put("data_send_id", id);
+        this.customQueryRestTemplate.activateDataOffering(activationParameters, headers);
+
         return new FormResponse(id);
     }
 

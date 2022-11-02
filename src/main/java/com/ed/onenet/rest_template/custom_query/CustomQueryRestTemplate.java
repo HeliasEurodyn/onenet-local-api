@@ -47,4 +47,22 @@ public class CustomQueryRestTemplate {
         return response.getBody();
     }
 
+    public Object activateDataOffering(Map<String, String> parameters, Map<String, String> headers) {
+
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.add("Content-Type", "application/json");
+        httpHeaders.add("Authorization", headers.get("authorization"));
+        HttpEntity<Map<String, String>> httpEntity =
+                new HttpEntity<Map<String, String>>(parameters, httpHeaders);
+
+        ResponseEntity<Object> response =
+                restTemplate.exchange(this.sofiaUri + "/custom-query/data-objects?id=b3336c63-b949-4c8e-a3f6-ab42e37c08f5&" ,
+                        HttpMethod.POST,
+                        httpEntity,
+                        new ParameterizedTypeReference<Object>() {}
+                );
+
+        return response.getBody();
+    }
+
 }
