@@ -1,14 +1,13 @@
-package com.ed.onenet.controller;
+package com.ed.onenet.controller.local_functionality;
 
 import com.ed.onenet.dto.FileResponse;
 import com.ed.onenet.dto.FormResponse;
-import com.ed.onenet.service.EntityService;
+import com.ed.onenet.service.local_functionality.EntityService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Base64;
 import java.util.Map;
 
 @RestController

@@ -4,7 +4,7 @@ import com.ed.onenet.dto.FileResponse;
 import com.ed.onenet.dto.list_results.ListResultsDataDTO;
 import com.ed.onenet.rest_template.consume_data.ConsumeDataRestTemplate;
 import com.ed.onenet.rest_template.custom_query.CustomQueryRestTemplate;
-import com.ed.onenet.service.EntityService;
+import com.ed.onenet.service.local_functionality.EntityService;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;

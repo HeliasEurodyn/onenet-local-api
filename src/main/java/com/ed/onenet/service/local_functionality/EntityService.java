@@ -1,4 +1,4 @@
-package com.ed.onenet.service;
+package com.ed.onenet.service.local_functionality;
 
 import com.ed.onenet.rest_template.OneNetRestTemplate;
 import com.ed.onenet.rest_template.SofiaRestTemplate;
@@ -76,7 +76,6 @@ public class EntityService {
         }
 
     }
-
 
     public FileResponse decodeUrlsAndGetObjectData(String id,
                                       String encodedEccUrl,

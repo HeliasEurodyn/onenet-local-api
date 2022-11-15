@@ -1,10 +1,8 @@
-package com.ed.onenet.controller;
+package com.ed.onenet.controller.health;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Map;
 
 @RestController
 @RequestMapping("/health")
@@ -14,7 +12,7 @@ public class HealthController {
 
     @GetMapping
     public String getObject(){
-        return "{\"status\":\"ok\"}";
+        return "{\"version\":\"1.3\"}";
     }
 
 }
