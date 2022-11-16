@@ -38,6 +38,15 @@ public class ProvideDataService {
     }
 
     public Object post(ProvideDataDTO dto, Map<String, String> headers) {
+
+        /* Check on Central Registry if user has rights on this data offering */
+        List<Map<String,Object>> response =
+                this.customQueryRestTemplate.getDataObjects("94f1846c-0e0b-42fa-9686-3b5cfa06def1",
+                        Collections.singletonMap("data_offering_id", dto.getData_offering_id()), headers);
+        if(response.size() <= 0){
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,"Data Offering not available");
+        }
+
         Map<String, Object> dataSend = new HashMap<>();
         dataSend.put("title", dto.getTitle());
         dataSend.put("description", dto.getDescription());

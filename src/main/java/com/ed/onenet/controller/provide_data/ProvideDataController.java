@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 import java.util.Map;
 
@@ -40,8 +41,9 @@ public class ProvideDataController {
 
     @Operation(security = @SecurityRequirement(name = "bearerAuth"))
     @PostMapping
+
     public Object post(
-            @RequestBody ProvideDataDTO dto,
+            @RequestBody @Valid ProvideDataDTO dto,
             @RequestHeader Map<String, String> headers) {
         return provideDataService.post(dto, headers);
     }

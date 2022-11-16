@@ -7,6 +7,11 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
+import javax.validation.Valid;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -18,6 +23,9 @@ public class ProvideDataDTO {
     String description;
     String filename;
     String file;
+
+    @NotEmpty
+    @NotNull(message = "Data Offering Id not null")
     String data_offering_id;
     String code;
 }
