@@ -7,11 +7,13 @@ import com.ed.onenet.dto.FormResponse;
 import com.ed.onenet.rest_template.custom_query.CustomQueryRestTemplate;
 import com.ed.onenet.service.user.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.*;
 
+@Slf4j
 @Service
 public class EntityService {
 
@@ -33,18 +35,24 @@ public class EntityService {
     public FormResponse postObject(String formId, Map<String, Map<String, Object>> parameters,
                                    Map<String, String> headers) {
 
+        log.debug("*** 1. Save Data Offering to Central Registry");
         /* Save Data Offering to Central Registry */
         parameters.get("data_send").put("status","pending");
         parameters = this.postObjectToCentralRegistry(formId, parameters, headers);
         String id = (String) parameters.get("data_send").get("id");
+        log.debug("*** New id from central registry= "+ id);
 
         /* Save File on Local Premises */
+        log.debug("*** 2. Save File on Local Premises");
         Map<String, Map<String, Object>> subEntity =
                 (Map<String, Map<String, Object>>) parameters.get("data_send").get("sub-entities");
         String providerFiwareIp = (String) subEntity.get("provider").get("provider_fiware_url");
+
+        log.debug("*** Provider Data App= " + providerFiwareIp);
         this.postObjectToOnenet(parameters, providerFiwareIp, headers);
 
         /* Activate Data Offering to Central Registry */
+        log.debug("*** 3. Activate Data Offering to Central Registry By id="+ id);
         Map<String, String> activationParameters = new HashMap<>();
         activationParameters.put("data_send_id", id);
         this.customQueryRestTemplate.activateDataOffering(activationParameters, headers);
@@ -72,57 +80,73 @@ public class EntityService {
         List<Map<String, Object>> jsonLdParametersList = this.parametersToJsonLdList(parameters);
 
         for (Map<String, Object> jsonLdParameters : jsonLdParametersList) {
+            log.debug("*** Json Ld Params to be posted = " + jsonLdParameters.toString());
             this.oneNetRestTemplate.post(jsonLdParameters, headers, providerFiwareIp);
         }
 
     }
 
     public FileResponse decodeUrlsAndGetObjectData(String id,
-                                      String encodedEccUrl,
-                                      String encodedConsumerFiwareUrl,
+                                      String encodedProviderEccUrl,
+                                      String encodedProviderFiwareUrl,
                                       String encodedConsumerDataAppUrl,
                                       Map<String, String> headers) {
 
-        byte[] decodedBytes = Base64.getDecoder().decode(encodedEccUrl);
-        String eccUrl = new String(decodedBytes);
+        byte[] decodedBytes = Base64.getDecoder().decode(encodedProviderEccUrl);
+        String providerEccUrl = new String(decodedBytes);
 
-        decodedBytes = Base64.getDecoder().decode(encodedConsumerFiwareUrl);
-        String consumerFiwareUrl = new String(decodedBytes);
+        decodedBytes = Base64.getDecoder().decode(encodedProviderFiwareUrl);
+        String providerFiwareUrl = new String(decodedBytes);
 
         decodedBytes = Base64.getDecoder().decode(encodedConsumerDataAppUrl);
         String consumerDataAppUrl = new String(decodedBytes);
 
-       return this.getObjectData(id, eccUrl, consumerFiwareUrl, consumerDataAppUrl, headers);
+        log.debug("consumerDataAppUrl= " + consumerDataAppUrl);
+        log.debug("providerEccUrl= " + providerEccUrl);
+        log.debug("providerBrokerUrl= " + providerFiwareUrl);
+       return this.getObjectData(id, providerEccUrl, providerFiwareUrl, consumerDataAppUrl, headers);
     }
 
     public FileResponse getObjectData(String id,
-                                      String eccUrl,
-                                      String consumerFiwareUrl,
+                                      String providerEccUrl,
+                                      String providerFiwareUrl,
                                       String consumerDataAppUrl,
                                       Map<String, String> headers) {
 
         List<String> fileParts = new ArrayList<>();
 
+        log.debug("1. *** Transfer local From Provider (Header)");
+
         Map<String, Object> reqJsonParameters = new HashMap<>();
         reqJsonParameters.put("entityId", "urn:ngsi-ld:dataentity:" + id);
-        reqJsonParameters.put("eccUrl", eccUrl);
-        reqJsonParameters.put("brokerUrl", consumerFiwareUrl);
+        reqJsonParameters.put("eccUrl", providerEccUrl);
+        reqJsonParameters.put("brokerUrl", providerFiwareUrl);
+
+        log.debug("reqJsonParameters= "+ reqJsonParameters.toString());
         this.oneNetRestTemplate.dataentityRequesFromProvider(reqJsonParameters, consumerDataAppUrl);
 
+        log.debug("2. *** Consume From Local Provider (Header)");
         Map<String, Object> jsonLdParameters = this.oneNetRestTemplate.retrieveData("dataentity", id, consumerDataAppUrl);
+
+        log.debug("Response= " + jsonLdParameters.toString());
 
         Map<String, Object> sizeRef = (Map<String, Object>) jsonLdParameters.get("partsSize");
         Integer size = (Integer) sizeRef.get("value");
 
         for (int i = 0; i < size; i++) {
+            log.debug("1A. *** Transfer local From Provider (Part)");
 
             reqJsonParameters = new HashMap<>();
             reqJsonParameters.put("entityId", "urn:ngsi-ld:datapart:" + id + "-" + i);
-            reqJsonParameters.put("eccUrl", eccUrl);
-            reqJsonParameters.put("brokerUrl", consumerFiwareUrl);
+            reqJsonParameters.put("eccUrl", providerEccUrl);
+            reqJsonParameters.put("brokerUrl", providerFiwareUrl);
+            log.debug("reqJsonParameters= "+ reqJsonParameters.toString());
             this.oneNetRestTemplate.dataentityRequesFromProvider(reqJsonParameters, consumerDataAppUrl);
 
+            log.debug("2A. *** Consume From Local Provider (Part)");
             Map<String, Object> jsonLdPartParameters = this.oneNetRestTemplate.retrieveData("datapart", id + "-" + i, consumerDataAppUrl);
+            log.debug("Response= " + jsonLdParameters.toString());
+
             Map<String, String> partRef = (Map<String, String>) jsonLdPartParameters.get("part");
             String part = partRef.get("value");
             fileParts.add(part);

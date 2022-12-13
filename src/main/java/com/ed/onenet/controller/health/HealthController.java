@@ -12,7 +12,7 @@ public class HealthController {
 
     @GetMapping
     public String getObject(){
-        return "{\"version\":\"1.3\"}";
+        return "{\"version\":\"1.4\"}";
     }
 
 }

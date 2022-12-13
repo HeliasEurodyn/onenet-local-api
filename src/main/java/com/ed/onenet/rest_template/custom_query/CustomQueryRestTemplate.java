@@ -56,7 +56,7 @@ public class CustomQueryRestTemplate {
                 new HttpEntity<Map<String, String>>(parameters, httpHeaders);
 
         ResponseEntity<Object> response =
-                restTemplate.exchange(this.sofiaUri + "/custom-query/data-objects?id=b3336c63-b949-4c8e-a3f6-ab42e37c08f5&" ,
+                restTemplate.exchange(this.sofiaUri + "/custom-query/data-objects?id=b3336c63-b949-4c8e-a3f6-ab42e37c08f5" ,
                         HttpMethod.POST,
                         httpEntity,
                         new ParameterizedTypeReference<Object>() {}

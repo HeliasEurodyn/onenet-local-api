@@ -41,7 +41,6 @@ public class ProvideDataController {
 
     @Operation(security = @SecurityRequirement(name = "bearerAuth"))
     @PostMapping
-
     public Object post(
             @RequestBody @Valid ProvideDataDTO dto,
             @RequestHeader Map<String, String> headers) {

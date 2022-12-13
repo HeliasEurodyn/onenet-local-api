@@ -25,16 +25,22 @@ public class EntityController {
     public FormResponse postObjectData(@RequestParam("id") String formId,
                                        @RequestBody Map<String, Map<String, Object>> parameters,
                                        @RequestHeader Map<String, String> headers) {
+        log.debug("*** EntityController POST to /entityid=" + formId);
+        log.debug("body= " + parameters.toString());
+        log.debug("headers= ",headers.toString());
         return this.entityService.postObject(formId, parameters, headers);
     }
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public FileResponse getObjectData(@RequestParam("id") String id,
-                                      @RequestParam("provider_ecc") String encodedEccUrl,
-                                      @RequestParam("consumer_fiware") String encodedConsumerFiwareUrl,
+                                      @RequestParam("provider_ecc") String encodedProviderEccUrl,
+                                      @RequestParam("consumer_fiware") String encodedProviderFiwareUrl,
                                       @RequestParam("consumer_data_app") String encodedConsumerDataAppUrl,
                                       @RequestHeader Map<String, String> headers) {
-        return this.entityService.decodeUrlsAndGetObjectData(id, encodedEccUrl, encodedConsumerFiwareUrl, encodedConsumerDataAppUrl, headers);
+
+        log.debug("*** EntityController GET to /=" + id);
+        log.debug("headers= " + headers.toString());
+        return this.entityService.decodeUrlsAndGetObjectData(id, encodedProviderEccUrl, encodedProviderFiwareUrl, encodedConsumerDataAppUrl, headers);
     }
 
     @GetMapping(path = "/local")

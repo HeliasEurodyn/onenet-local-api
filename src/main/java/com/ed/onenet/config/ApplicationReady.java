@@ -21,8 +21,8 @@ public class ApplicationReady implements ApplicationListener<ContextRefreshedEve
     @SneakyThrows
     @Override
     public void onApplicationEvent(final ContextRefreshedEvent event) {
-        System.out.println("Application started ... launching browser now");
-        browse("http://localhost:" + this.serverPort + "/api/onenet.html");
+        // System.out.println("Application started ... launching browser now");
+        // browse("http://localhost:" + this.serverPort + "/api/onenet.html");
     }
 
     public static void browse(String url) {

@@ -1,5 +1,6 @@
 package com.ed.onenet.rest_template;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
@@ -13,6 +14,7 @@ import java.net.URI;
 import java.util.Map;
 
 @Service
+@Slf4j
 public class SofiaRestTemplate {
 
     private final RestTemplate restTemplate;
@@ -30,6 +32,8 @@ public class SofiaRestTemplate {
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.add("Content-Type", "application/json");
         httpHeaders.add("Authorization", headers.get("authorization"));
+
+        log.debug("headers " + httpHeaders.toString());
         HttpEntity<Map<String, Map<String, Object>>> httpEntity =
                 new HttpEntity<Map<String, Map<String, Object>>>(parameters, httpHeaders);
 
@@ -42,6 +46,7 @@ public class SofiaRestTemplate {
                         }
                 );
 
+        log.debug("responce body " + response.getBody().toString());
         return response.getBody();
     }
 
