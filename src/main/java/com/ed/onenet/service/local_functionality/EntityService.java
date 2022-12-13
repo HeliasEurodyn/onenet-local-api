@@ -40,7 +40,7 @@ public class EntityService {
         parameters.get("data_send").put("status","pending");
         parameters = this.postObjectToCentralRegistry(formId, parameters, headers);
         String id = (String) parameters.get("data_send").get("id");
-        log.debug("*** New id from central registry= "+ id);
+        log.debug("New id from central registry= "+ id);
 
         /* Save File on Local Premises */
         log.debug("*** 2. Save File on Local Premises");

@@ -21,6 +21,8 @@ public class ConnectivityCheckController {
 
     @GetMapping
     public Map<String, String> check(@RequestHeader Map<String, String> headers){
+     log.debug("*** ConnectivityCheckController GET" );
+     log.debug("Headers= "+ headers);
      return this.connectivityCheckService.check(headers);
     }
 

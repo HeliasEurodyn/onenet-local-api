@@ -27,7 +27,7 @@ public class EntityController {
                                        @RequestHeader Map<String, String> headers) {
         log.debug("*** EntityController POST to /entityid=" + formId);
         log.debug("body= " + parameters.toString());
-        log.debug("headers= ",headers.toString());
+        log.debug("headers= "+headers.toString());
         return this.entityService.postObject(formId, parameters, headers);
     }
 
