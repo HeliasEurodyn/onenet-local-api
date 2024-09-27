@@ -37,17 +37,17 @@ public class SofiaRestTemplate {
         HttpEntity<Map<String, Map<String, Object>>> httpEntity =
                 new HttpEntity<Map<String, Map<String, Object>>>(parameters, httpHeaders);
 
-        ResponseEntity<String> response =
+        ResponseEntity<Map> response =
                 restTemplate.exchange(
                         URI.create(sofiaUri + "/form?id=" + formId),
                         HttpMethod.POST,
                         httpEntity,
-                        new ParameterizedTypeReference<String>() {
+                        new ParameterizedTypeReference<Map>() {
                         }
                 );
 
         log.debug("responce body " + response.getBody().toString());
-        return response.getBody();
+        return (String) response.getBody().get("response");
     }
 
 }
